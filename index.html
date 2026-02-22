@@ -27,16 +27,32 @@ video{
     width:100%;
     height:100%;
     object-fit:cover;
-    opacity:.22;
+    opacity:.85; /* CLEARER BACKGROUND */
     z-index:-2;
+    filter:brightness(1.1) contrast(1.2); /* Enhance video colors */
 }
 
 /* GLASS OVERLAY */
 .overlay{
     position:fixed;
     inset:0;
-    backdrop-filter:blur(6px);
+    backdrop-filter:blur(3px); /* Slight blur instead of heavy */
     z-index:-1;
+}
+
+/* TAP TO PLAY MUSIC */
+#tapToPlay{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.5); /* Less dark */
+    color:#00ff88;
+    font-size:1.2em;
+    z-index:9999;
+    cursor:pointer;
+    text-shadow:0 0 15px #00ff88;
 }
 
 /* LOADING */
@@ -99,7 +115,7 @@ video{
 
 /* PANELS */
 .panel{
-    background:rgba(0,0,0,.7);
+    background:rgba(0,0,0,.5); /* More transparent panels */
     border:1.5px solid #00fff7;
     border-radius:14px;
     padding:15px;
@@ -127,7 +143,7 @@ video{
 .map{
     height:280px;
     border-radius:10px;
-    border:2px solid #00ff88;
+    border:2px solid #00fff88;
 }
 </style>
 </head>
@@ -139,9 +155,13 @@ video{
 </video>
 <div class="overlay"></div>
 
-<audio autoplay loop>
+<!-- MUSIC -->
+<audio id="bgMusic" loop>
     <source src="song.mp3" type="audio/mpeg">
 </audio>
+
+<!-- TAP TO START MUSIC -->
+<div id="tapToPlay">🔊 TAP TO START MUSIC</div>
 
 <!-- BOOT -->
 <div id="boot">
@@ -154,7 +174,7 @@ video{
 <!-- SYSTEM -->
 <div id="system">
     <div class="header">
-        <h1> HAPPY BIRTHDAY BRO ATAUEA 🇰🇮✝️ </h1>
+        <h1>🎉 HAPPY BIRTHDAY ATAUEA 🎉</h1>
         <p>CYBERPUNK • GOD MODE • GOD BLESS YOU ✝️</p>
     </div>
 
@@ -226,6 +246,29 @@ function loadMaps(){
     L.tileLayer(tile,opt).addTo(m1);
     L.tileLayer(tile,opt).addTo(m2);
 }
+
+// MUSIC AUTO PLAY FIX
+const music = document.getElementById("bgMusic");
+const tap = document.getElementById("tapToPlay");
+music.volume = 0.7;
+
+// Try autoplay immediately
+music.play().then(()=>{
+    tap.style.display="none";
+}).catch(()=>{});
+
+// Play on first user interaction
+tap.addEventListener("click", ()=>{
+    music.play();
+    tap.style.display="none";
+});
+
+document.addEventListener("touchstart", ()=>{
+    if(music.paused){
+        music.play();
+        tap.style.display="none";
+    }
+},{once:true});
 </script>
 
 </body>
