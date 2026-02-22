@@ -17,7 +17,8 @@
 body{
     background:#000;
     color:#00fff7;
-    overflow:hidden;
+    overflow-y:auto;
+    scroll-behavior:smooth;
 }
 
 /* VIDEO BG */
@@ -27,32 +28,47 @@ video{
     width:100%;
     height:100%;
     object-fit:cover;
-    opacity:.85; /* CLEARER BACKGROUND */
+    opacity:.85;
     z-index:-2;
-    filter:brightness(1.1) contrast(1.2); /* Enhance video colors */
+    filter:brightness(1.1) contrast(1.2);
 }
 
 /* GLASS OVERLAY */
 .overlay{
     position:fixed;
     inset:0;
-    backdrop-filter:blur(3px); /* Slight blur instead of heavy */
+    backdrop-filter:blur(3px);
     z-index:-1;
 }
 
-/* TAP TO PLAY MUSIC */
-#tapToPlay{
+/* MUSIC CONTROL PANEL */
+#musicControl{
     position:fixed;
-    inset:0;
+    bottom:20px;
+    right:20px;
+    background:rgba(0,0,0,.6);
+    border:2px solid #00fff7;
+    border-radius:10px;
+    padding:8px 12px;
     display:flex;
-    align-items:center;
-    justify-content:center;
-    background:rgba(0,0,0,.5); /* Less dark */
-    color:#00ff88;
-    font-size:1.2em;
-    z-index:9999;
+    gap:10px;
+    z-index:999;
+}
+
+#musicControl button{
+    background:transparent;
+    border:1px solid #00fff7;
+    border-radius:6px;
+    color:#00fff7;
+    padding:5px 8px;
+    font-size:0.9em;
     cursor:pointer;
-    text-shadow:0 0 15px #00ff88;
+    transition:0.2s;
+}
+
+#musicControl button:hover{
+    background:#00fff7;
+    color:#000;
 }
 
 /* LOADING */
@@ -115,7 +131,7 @@ video{
 
 /* PANELS */
 .panel{
-    background:rgba(0,0,0,.5); /* More transparent panels */
+    background:rgba(0,0,0,.5);
     border:1.5px solid #00fff7;
     border-radius:14px;
     padding:15px;
@@ -160,8 +176,12 @@ video{
     <source src="song.mp3" type="audio/mpeg">
 </audio>
 
-<!-- TAP TO START MUSIC -->
-<div id="tapToPlay">🔊 TAP TO START MUSIC</div>
+<!-- MUSIC CONTROL PANEL -->
+<div id="musicControl">
+    <button id="playBtn">▶ Play</button>
+    <button id="pauseBtn">⏸ Pause</button>
+    <button id="stopBtn">⏹ Stop</button>
+</div>
 
 <!-- BOOT -->
 <div id="boot">
@@ -211,6 +231,7 @@ SYSTEM BOOT LOG
 </div>
 
 <script>
+// BOOT LOADING
 let p=0;
 const fill=document.getElementById("fill");
 const percent=document.getElementById("percent");
@@ -233,6 +254,7 @@ const boot=setInterval(()=>{
         document.getElementById("boot").style.display="none";
         document.getElementById("system").style.display="block";
         loadMaps();
+        playMusic();
     }
 },35);
 
@@ -247,28 +269,24 @@ function loadMaps(){
     L.tileLayer(tile,opt).addTo(m2);
 }
 
-// MUSIC AUTO PLAY FIX
+// MUSIC AUTO PLAY
 const music = document.getElementById("bgMusic");
-const tap = document.getElementById("tapToPlay");
 music.volume = 0.7;
 
-// Try autoplay immediately
-music.play().then(()=>{
-    tap.style.display="none";
-}).catch(()=>{});
+function playMusic(){
+    music.play().catch(()=>{
+        document.addEventListener("click", ()=>{ music.play(); }, {once:true});
+        document.addEventListener("touchstart", ()=>{ music.play(); }, {once:true});
+    });
+}
 
-// Play on first user interaction
-tap.addEventListener("click", ()=>{
-    music.play();
-    tap.style.display="none";
+// MUSIC CONTROL BUTTONS
+document.getElementById("playBtn").addEventListener("click", ()=>{ music.play(); });
+document.getElementById("pauseBtn").addEventListener("click", ()=>{ music.pause(); });
+document.getElementById("stopBtn").addEventListener("click", ()=>{
+    music.pause();
+    music.currentTime = 0;
 });
-
-document.addEventListener("touchstart", ()=>{
-    if(music.paused){
-        music.play();
-        tap.style.display="none";
-    }
-},{once:true});
 </script>
 
 </body>
